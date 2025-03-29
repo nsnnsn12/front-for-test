@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { Box, Button, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
@@ -10,21 +10,26 @@ export default function HoverMenu({ children }: HoverMenuProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-
   const handleMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget); // 마우스를 올리면 서브 메뉴가 열립니다.
+    if (anchorEl !== event.currentTarget) {
+      setAnchorEl(event.currentTarget);
+    }
   };
 
-  const handleMouseLeave = () => {
-    console.log("mouseleave");
+  const handleMouseLeave = (event: React.MouseEvent<HTMLElement>) => {
+    console.log("mouseleave", event);
+    if(anchorEl === event.currentTarget) {
+      return;
+    }
     setAnchorEl(null); // 마우스를 떼면 서브 메뉴가 닫힙니다.
   };
 
   return (
-    <Box >
+    <Box onMouseLeave={handleMouseLeave}>
       <Button
         onMouseEnter={handleMouseEnter} // 버튼 위로 마우스를 올리면 서브 메뉴가 나타납니다.
-        onMouseLeave={handleMouseLeave} // 버튼에서 마우스를 떼면 서브 메뉴가 사라집니다.
+        // onMouseLeave={handleMouseLeave} // 버튼에서 마우스를 떼면 서브 메뉴가 사라집니다.
+        id="hover-menu" onMouseLeave={handleMouseLeave}
       >
         메뉴
       </Button>
@@ -38,7 +43,7 @@ export default function HoverMenu({ children }: HoverMenuProps) {
         slotProps={{
           list: {
             onMouseLeave: handleMouseLeave, // 서브 메뉴 리스트에서 마우스를 떼면 메뉴가 닫힙니다.
-          }
+          },
         }}
       >
         <MenuItem>서브 메뉴 1</MenuItem>
