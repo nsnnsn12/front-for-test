@@ -11,7 +11,7 @@ const roboto = Roboto({
   variable: "--font-roboto",
 });
 import "./globals.css";
-import { Box, Container } from "@mui/material";
+import { Container } from "@mui/material";
 import AppHeader from "./_components/AppHeader";
 
 export const metadata: Metadata = {

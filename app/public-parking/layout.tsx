@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Box, Link } from "@mui/material";
+import { Link } from "@mui/material";
 import AppSubMenuBar from "@/_components/AppSubMenuBar";
 import NextLink from "next/link";
 import HoverMenu from "@/_components/HoverMenu";
