@@ -1,0 +1,70 @@
+name: Publish Docker image For Develop
+
+on:
+  push:
+    branches: [ develop ]
+env:
+  APPLICATION_NAME: frontfortest # 스택 이름
+  DOCKER_IMAGE: sunggyu496/frontfortest # Docker Hub에 푸시할 이미지 이름
+  REPOSITORY_FOR_DEPLOYMENT: deploy-for-petclinic # swarm stack 파일을 관리하는 레포지토리
+  DEPLOYENT_FILE_PATH: ./swarm/stack-dev.yml # stack.yml 파일의 경로
+jobs:
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: v0.10.0
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5.7.0
+        with:
+          images: ${{ env.DOCKER_IMAGE }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.DOCKER_IMAGE }}:develop
+          cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:cache
+          cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:cache,mode=max
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: index.docker.io/${{ env.DOCKER_IMAGE }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+      # - name: SSH to Remote Server and Deploy Stack
+      #   uses: appleboy/ssh-action@v1
+      #   with:
+      #     host: ${{ secrets.REMOTE_HOST }}
+      #     username: ${{ secrets.REMOTE_USERNAME }}
+      #     key: ${{ secrets.REMOTE_SSH_KEY }}
+      #     port: ${{ secrets.SSH_PORT }}
+      #     script: |
+      #       [ ! -d "~/${{ env.REPOSITORY_FOR_DEPLOYMENT }}" ] && gh repo clone ${{ env.REPOSITORY_FOR_DEPLOYMENT }}
+      #       cd ~/${{ env.REPOSITORY_FOR_DEPLOYMENT }}
+      #       gh repo sync
+      #       docker login
+      #       docker stack deploy --with-registry-auth -c ${{env.DEPLOYENT_FILE_PATH}} ${{ env.APPLICATION_NAME}}
