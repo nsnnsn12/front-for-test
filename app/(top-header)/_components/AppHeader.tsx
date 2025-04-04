@@ -134,12 +134,12 @@ export default function AppHeader() {
       <Stack direction="row" spacing={1} alignItems={"center"}>
         <Button
           size="small"
-          href="#"
+          href="/login"
           variant="contained"
           color="secondary"
           component={NextLink}
         >
-          로그아웃
+          로그인
         </Button>
       </Stack>
     </Box>
