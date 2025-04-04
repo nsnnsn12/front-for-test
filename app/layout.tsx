@@ -12,7 +12,6 @@ const roboto = Roboto({
 });
 import "./globals.css";
 import { Container } from "@mui/material";
-import AppHeader from "./_components/AppHeader";
 
 export const metadata: Metadata = {
   title: "서대문구도시관리공단",
@@ -36,7 +35,7 @@ export default function RootLayout({
                 paddingTop: 0,
               }}
             >
-              <AppHeader />
+              {/* <AppHeader /> */}
               {children}
             </Container>
           </ThemeProvider>

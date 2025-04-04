@@ -1,55 +1,71 @@
 "use client";
 
-import { Box, Button, Menu, MenuItem } from "@mui/material";
-import { useState } from "react";
-
-interface HoverMenuProps {
-  children?: React.ReactNode;
+import NextLink from "next/link";
+import {
+  Button,
+  MenuItem,
+  MenuList,
+  styled,
+  Tooltip,
+  tooltipClasses,
+  TooltipProps,
+} from "@mui/material";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import IndeterminateCheckBoxIcon from "@mui/icons-material/IndeterminateCheckBox";
+export interface HoverMenuProps {
+  menuTitle: string; // 메뉴 제목
+  menuIcon: React.ReactNode;
+  subMenus: HoverMenu[];
 }
-export default function HoverMenu({ children }: HoverMenuProps) {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
 
-  const handleMouseEnter = (event: React.MouseEvent<HTMLElement>) => {
-    if (anchorEl !== event.currentTarget) {
-      setAnchorEl(event.currentTarget);
-    }
-  };
+interface HoverMenu {
+  text: string; // 메뉴 텍스트
+  link: string; // 메뉴 링크
+}
+const HoverTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip
+    {...props}
+    classes={{ popper: className }}
+    placement="bottom-start"
+  />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: "#f5f5f9",
+    color: "rgba(0, 0, 0, 0.87)",
+    maxWidth: 220,
+    fontSize: theme.typography.pxToRem(12),
+    border: "1px solid #dadde9",
+  },
+}));
 
-  const handleMouseLeave = (event: React.MouseEvent<HTMLElement>) => {
-    console.log("mouseleave", event);
-    if(anchorEl === event.currentTarget) {
-      return;
-    }
-    setAnchorEl(null); // 마우스를 떼면 서브 메뉴가 닫힙니다.
-  };
-
+export default function HoverMenu({ menuIcon, menuTitle, subMenus }: HoverMenuProps) {
   return (
-    <Box onMouseLeave={handleMouseLeave}>
-      <Button
-        onMouseEnter={handleMouseEnter} // 버튼 위로 마우스를 올리면 서브 메뉴가 나타납니다.
-        // onMouseLeave={handleMouseLeave} // 버튼에서 마우스를 떼면 서브 메뉴가 사라집니다.
-        id="hover-menu" onMouseLeave={handleMouseLeave}
+    <div>
+      <HoverTooltip
+        title={
+          <MenuList>
+            {subMenus.map((item, idx) => (
+              <MenuItem key={idx}>
+                <Button
+                  startIcon={<IndeterminateCheckBoxIcon />}
+                  component={NextLink}
+                  href={item.link}
+                >
+                  {item.text}
+                </Button>
+              </MenuItem>
+            ))}
+          </MenuList>
+        }
       >
-        메뉴
-      </Button>
-
-      {/* 서브 메뉴 */}
-      <Menu
-        anchorEl={anchorEl} // anchorEl에 마우스가 올려진 버튼을 설정
-        open={open} // anchorEl이 null이 아니면 서브 메뉴가 열림
-        onClose={handleMouseLeave} // 서브 메뉴 밖을 클릭하거나 마우스를 떼면 메뉴가 닫힙니다.
-        // slots prop removed as it is invalid
-        slotProps={{
-          list: {
-            onMouseLeave: handleMouseLeave, // 서브 메뉴 리스트에서 마우스를 떼면 메뉴가 닫힙니다.
-          },
-        }}
-      >
-        <MenuItem>서브 메뉴 1</MenuItem>
-        <MenuItem>서브 메뉴 2</MenuItem>
-        <MenuItem>서브 메뉴 3</MenuItem>
-      </Menu>
-    </Box>
+        <Button
+          color="secondary"
+          startIcon={menuIcon}
+          endIcon={<KeyboardArrowDownIcon />}
+        >
+          {menuTitle}
+        </Button>
+      </HoverTooltip>
+    </div>
   );
 }
