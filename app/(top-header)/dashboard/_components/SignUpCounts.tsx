@@ -40,7 +40,7 @@ const columns: readonly CustomColumn[] = [
   {
     id: "counts",
     label: "건수",
-    minWidth: 170,
+    minWidth: 150,
     align: "right",
     getLabel: (value) => `${value}건`,
   },
