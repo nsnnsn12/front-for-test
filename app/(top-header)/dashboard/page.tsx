@@ -1,3 +1,4 @@
+"use client";
 import { Box, Grid2 } from "@mui/material";
 import SearchHistory from "./_components/SearchHistory";
 import SearchBar from "./_components/SearchBar";
