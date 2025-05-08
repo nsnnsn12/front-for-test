@@ -35,7 +35,6 @@ export default function RootLayout({
                 paddingTop: 0,
               }}
             >
-              {/* <AppHeader /> */}
               {children}
             </Container>
           </ThemeProvider>

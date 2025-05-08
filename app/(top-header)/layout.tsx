@@ -1,3 +1,5 @@
+"use client";
+import { SnackbarProvider } from "notistack";
 import AppHeader from "./_components/AppHeader";
 
 export default function RootLayout({
@@ -8,7 +10,7 @@ export default function RootLayout({
   return (
     <>
       <AppHeader />
-      {children}
+      <SnackbarProvider maxSnack={3}>{children}</SnackbarProvider>
     </>
   );
 }
