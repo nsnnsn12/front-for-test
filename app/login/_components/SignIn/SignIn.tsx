@@ -18,6 +18,9 @@ import ForgotPassword from "./_components/ForgotPassword";
 import AppTheme from "../SharedTheme/AppTheme";
 import axiosInstance from "@/utils/axios";
 import { useRouter } from "next/navigation";
+import { useSnackbar } from "notistack";
+import { useApi } from "@/hooks/useApi";
+import { useEffect } from "react";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -67,6 +70,9 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   const [open, setOpen] = React.useState(false);
+  const { enqueueSnackbar } = useSnackbar();
+  const { error, status, fetchData, isLoading } = useApi<object>();
+
   const router = useRouter();
 
   const handleClickOpen = () => {
@@ -99,22 +105,27 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
       setPasswordErrorMessage("");
     }
 
-    try {
-      const response = await axiosInstance.post("/login", {
+    fetchData(async () => {
+      return await axiosInstance.post("/login", {
         username: email.value,
         password: password.value,
       });
-
-      if (response.status === 200) {
-        // Handle successful login
-        console.log("Login successful");
-        router.push("/");
-        // Redirect to dashboard or perform other actions
-      }
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
+    });
   };
+
+  //error가 발생했을 때 snackbar를 띄워줌
+  useEffect(() => {
+    if (error) {
+      console.log("error", error);
+      enqueueSnackbar(error.message, { variant: "error" });
+    }
+  }, [error, enqueueSnackbar]);
+
+  useEffect(() => {
+    if (status === 200) {
+      router.push("/");
+    }
+  }, [status, router]);
 
   return (
     <AppTheme {...props}>
@@ -176,9 +187,21 @@ export default function SignIn(props: { disableCustomTheme?: boolean }) {
               label="Remember me"
             />
             <ForgotPassword open={open} handleClose={handleClose} />
-            <Button fullWidth variant="contained" onClick={validateInputs}>
-              로그인
-            </Button>
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Typography>로그인 중...</Typography>
+              </Box>
+            ) : (
+              <Button fullWidth variant="contained" onClick={validateInputs}>
+                로그인
+              </Button>
+            )}
             <Link
               component="button"
               type="button"
